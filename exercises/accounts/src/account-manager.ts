@@ -1,18 +1,13 @@
 interface INewUser {
   email: string,
-  password: string,
+  password: string
 }
-interface IUser {
-  email: string,
-  password: string,
+interface IUser extends INewUser {
   isActive: boolean
 }
 
-interface IAdmin {
-  email: string,
-  password: string,
-  adminSince: Date,
-  isActive: boolean
+interface IAdmin extends IUser{
+  adminSince: Date
 }
 
 export class AccountManager {
@@ -28,7 +23,7 @@ export class AccountManager {
   register(email: string, password: string): INewUser {
     if(!email) throw 'Must provide an email';
     if(!password) throw 'Must provide a password';
-    let user = { email, password } as INewUser;
+    let user : INewUser = { email, password };
     this.users.push(user);
     return user;
   }
