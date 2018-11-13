@@ -1,18 +1,22 @@
+interface INewUser {
+  email: string,
+  password: string,
+}
 interface IUser {
+  email: string,
+  password: string,
+  isActive: boolean
+}
+
+interface IAdmin {
   email: string,
   password: string,
   adminSince: Date,
   isActive: boolean
 }
 
-interface IAdmin {
-  users: IUser[],
-  activateNewUser(approver: IUser, userToApprove: IUser): void
-  promoteToAdmin(existingAdmin: IUser, user: IUser): void
-}
-
-export class AccountManager implements IAdmin {
-  users = [];
+export class AccountManager {
+  users : INewUser[] = [];
 
   /**
    * Create a new user account
@@ -21,10 +25,10 @@ export class AccountManager implements IAdmin {
    * @return the new user account. An admin must activate it using activateNewUser
    * @see this.activateNewUser
    */
-  register(email: string, password: string) {
+  register(email: string, password: string): INewUser {
     if(!email) throw 'Must provide an email';
     if(!password) throw 'Must provide a password';
-    let user = { email, password } as never;
+    let user = { email, password } as INewUser;
     this.users.push(user);
     return user;
   }
@@ -35,10 +39,11 @@ export class AccountManager implements IAdmin {
    * @param userToApprove Newly-registered user, who is to be activated
    * @return the updated user object, now activated
    */
-  activateNewUser(approver: IUser, userToApprove: IUser) : IUser {
+  activateNewUser(approver: IAdmin, userToApprove: INewUser) : IUser {
     if (!approver.adminSince) throw "Approver is not an admin!";
-    userToApprove.isActive = true;
-    return userToApprove;
+    let confirmedUser = userToApprove as IUser;
+    confirmedUser.isActive = true;
+    return confirmedUser;
   }
 
   /**
@@ -47,10 +52,11 @@ export class AccountManager implements IAdmin {
    * @param user an active user who you're making an admin
    * @return the updated user object, now can also be regarded as an admin
    */
-  promoteToAdmin(existingAdmin: IUser, user: IUser) : IUser {
+  promoteToAdmin(existingAdmin: IAdmin, user: IUser) : IAdmin {
     if (!existingAdmin.adminSince) throw "Not an admin!";
     if (!user.isActive) throw "User must be active in order to be promoted to admin!";
-    user.adminSince = new Date();
-    return user;
+    let newAdmin = user as IAdmin;
+    newAdmin.adminSince = new Date();
+    return newAdmin;
   }
 }
